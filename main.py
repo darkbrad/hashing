@@ -1,16 +1,29 @@
-# This is a sample Python script.
+import hashlib
+import base64
+import random
+import typing
+a = []
+class PasswordHandler:
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+    def hash_password_raw(self,password: str) -> str:
+        hash_data = hashlib.sha256(password.encode("utf-8"))
+        return base64.b64encode(hash_data.digest()).decode("utf-8")
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+
+    def hash_password(self,password: str,peper="") -> str:
+
+        salt_number = random.randint(0, 2 ** 256 - 1)
+        salt=base64.b64encode(salt_number.to_bytes(32, "little")).decode("utf-8")
+        a.append(self.hash_password_raw(password + ":" + salt+":"+peper) + ":" + salt+":"+peper)
+        return a[0]
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    def password_verify(self,password: str, hash: str) -> bool:
+        raw_hash, salt,peper = hash.split(":", 3)
+        return self.hash_password_raw(password + ":" + salt+":"+peper) == raw_hash
+
+
+user1=PasswordHandler()
+print(user1.password_verify("ayjydtdd",user1.hash_password("ayjydtdd")))
